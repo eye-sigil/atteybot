@@ -46,3 +46,8 @@ config.json
 ###############
 rethinkdb_data
 rethinkdb_data/
+
+# pycache because taci said so #
+################################
+extensions/__pycache__/
+utils/__pycache__/
