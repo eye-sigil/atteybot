@@ -1,0 +1,12 @@
+https://github.com/rapptz/discord.py/archive/rewrite.zip
+aiohttp
+pillow
+wand
+py-cpuinfo
+psutil
+rethinkdb
+raven
+unidecode
+editdistance
+lavalink
+isodate

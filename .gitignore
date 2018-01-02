@@ -39,3 +39,8 @@ Thumbs.db
 # Config Secrets #
 ##################
 config.json
+
+# MemethonkDB #
+###############
+rethinkdb_data
+rethinkdb_data/
