@@ -11,6 +11,8 @@ class Core:
 
     def __init__(self, bot):
         self.bot = bot
+        self.color = "#000000"
+        self.emoji = ":nut_and_bolt:"
         self.settings = {
             'extensions': []
         }
@@ -30,7 +32,7 @@ class Core:
                 except:
                     pass
 
-    @commands.command(aliases=["le"])
+    @commands.command(aliases=["le"], hidden=True)
     @permissions.owner()
     async def load(self, ctx, name: str):
         """ Load an extension into the bot """
@@ -47,7 +49,7 @@ class Core:
         else:
             await m.edit(content='Extension already loaded.')
 
-    @commands.command(aliases=["ule", "ul"])
+    @commands.command(aliases=["ule", "ul"], hidden=True)
     @permissions.owner()
     async def unload(self, ctx, name: str):
         """ Unload an extension from the bot """
@@ -60,7 +62,7 @@ class Core:
         else:
             await m.edit(content='Extension not found or not loaded.')
 
-    @commands.command(aliases=["rle", "reloady", "rl"])
+    @commands.command(aliases=["rle", "reloady", "rl"], hidden=True)
     @permissions.owner()
     async def reload(self, ctx, name: str):
         """ Reload an extension into the bot """
@@ -78,7 +80,7 @@ class Core:
         else:
             await m.edit(content='Extension isn\'t loaded.')
 
-    @commands.command(aliases=["restart", 'die'])
+    @commands.command(aliases=["restart", 'die'], hidden=True)
     @permissions.owner()
     async def reboot(self, ctx):
         """ Ends the bot process """
@@ -101,7 +103,7 @@ class Core:
         await pong.edit(content="`PING discordapp.com {}ms`".format(int(ping)))
 
     # Ported from rybot
-    @commands.command(description="Manage those prefixes.")
+    @commands.command(description="Manage those prefixes.", hidden=True)
     async def prefix(self, ctx, method: str, *, prefix: str=None):
         if method == "add":
             if not permissions.is_owner_check(ctx):
@@ -133,12 +135,12 @@ class Core:
         else:
             await ctx.send('Method needs to be `add`, `remove`, `list`.')
 
-    @commands.command()
+    @commands.command(hidden=True)
     @permissions.owner()
     async def error(self, ctx):
         3/0
 
-    @commands.command()
+    @commands.command(hidden=True)
     @permissions.owner()
     async def alias(self, ctx, _from, to):
         _from = _from.replace('\'', '').replace('"', '')
