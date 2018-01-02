@@ -87,7 +87,7 @@ class Core:
         await ctx.send("Rebooting...")
         sys.exit(0)
 
-    @commands.command(aliases=["logout", "shutdown"])
+    @commands.command(aliases=["logout", "shutdown"], hidden=True)
     @permissions.owner()
     async def logoff(self, ctx):
         """ Logs the bot off Discord """
