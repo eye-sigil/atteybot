@@ -131,6 +131,7 @@ async def on_command_error(ctx, error):
         await cmd_help(ctx)
 
     elif isinstance(error, commands_errors.CommandInvokeError):
+        n = ctx.bot.config['RYSFIRSTNAME']
         error = error.original
         _traceback = traceback.format_tb(error.__traceback__)
         _traceback = ''.join(_traceback)
@@ -148,13 +149,13 @@ async def on_command_error(ctx, error):
             _traceback,
             type(error).__name__,
             error)
-        print(sentry_string)
+        sentry_string = sentry_string.replace(n, '<no>')
 
         error_embed.add_field(
             name="`{}` in command `{}`".format(
                 type(error).__name__, ctx.command.qualified_name),
             value="```py\nTraceback (most recent call last):\n{}{}: {}```".format(
-                _traceback, type(error).__name__, error))
+                _traceback.replace(n, '<no>'), type(error).__name__, error))
 
         ctx.bot.sentry.captureMessage(sentry_string)
 
