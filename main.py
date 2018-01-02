@@ -12,8 +12,10 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import errors as commands_errors
 from discord import utils as dutils
+from utils import permissions
 
 # INITIALIZE BOT #
+
 
 class Bot(commands.Bot):
     '''Custom Bot Class that overrides the commands.ext one'''
@@ -59,7 +61,7 @@ class Bot(commands.Bot):
             return
         if message.author.id in self.config.get('BLOCKED'):
             return
-        if message.author.id not in self.owners and self.maintenance:
+        if not permissions.owner_id_check(self, str(message.author.id)) and self.maintenance:
             return
         await self.process_commands(message)
 
