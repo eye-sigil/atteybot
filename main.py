@@ -1,7 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-'''Bot Main'''
+# atteybot @rcade's manager and proprietor
+# Ready to play some games?
+# main.py, utils, and core.py copyright (c) Tuxedo Team 2017
+# Used and modified with permission
+# All original work by ry00001 and taciturasa.
+
+'''Main File'''
 
 import traceback
 import json

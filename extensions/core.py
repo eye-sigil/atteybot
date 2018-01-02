@@ -111,7 +111,7 @@ class Core:
                     ':no_entry_sign: You do not have permission to use this command.')
             prefix = prefix.strip("\"")
             prefix = prefix.strip('\'')
-            if prefix == None:
+            if prefix is None:
                 return await ctx.send("Specify a prefix to add.")
             if prefix in self.bot.prefix:
                 return await ctx.send("Duplicate prefixes are not allowed!")
@@ -138,7 +138,7 @@ class Core:
     @commands.command(hidden=True)
     @permissions.owner()
     async def error(self, ctx):
-        3/0
+        3 / 0
 
     @commands.command(hidden=True)
     @permissions.owner()
