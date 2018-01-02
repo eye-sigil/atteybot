@@ -12,7 +12,7 @@
 import traceback
 import json
 import raven
-import rethinkdb as rethink
+import rethinkdb as r
 import sys
 import discord
 from discord.ext import commands
@@ -40,8 +40,8 @@ class Bot(commands.Bot):
         self.remove_command("help")
         self.init_raven()
         # TODO rethinkdb structure - let ry handle
-        # self.rdb =
-        # self.rtables =
+        # self.rdb = self.config['RETHINKDB']['DB']
+        # self.rtables = ['gbans', 'settings', 'modlog', 'tempbans']
         # self.init_rethinkdb()
         print('Initialization complete.\n\n')
 
@@ -73,6 +73,36 @@ class Bot(commands.Bot):
         print('Now initialising Sentry...\n')
         self.sentry = raven.Client(self.config['SENTRY'])
         print('Sentry initialised.\n')
+
+    # def init_rethinkdb(self):
+    #     print('Now initialising RethinkDB...')
+    #     dbc = self.config['RETHINKDB']
+    #     try:
+    #         self.conn = r.connect(
+    #             host=dbc['HOST'],
+    #             port=dbc['PORT'],
+    #             db=dbc['DB'],
+    #             user=dbc['USERNAME'],
+    #             password=dbc['PASSWORD'])
+    #         dbs = r.db_list().run(self.conn)
+    #         if self.rdb not in dbs:
+    #             print('Database not present. Creating...')
+    #             r.db_create(self.rdb).run(self.conn)
+    #         tables = r.db(self.rdb).table_list().run(self.conn)
+    #         for i in self.rtables:
+    #             if i not in tables:
+    #                 print(f'Table {i} not found. Creating...')
+    #                 r.table_create(i).run(self.conn)
+    #     except Exception as e:
+    #         print('RethinkDB init error!\n{}: {}'.format(type(e).__name__, e))
+    #         sys.exit(1)
+    #     print('RethinkDB initialisation successful.')
+
+    def find_command(self, cmdname: str):
+        for i in self.commands:
+            if i.name == cmdname:
+                return i
+        return False
 
     def find_command(self, cmdname: str):
         for i in self.commands:
