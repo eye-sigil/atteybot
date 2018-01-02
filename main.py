@@ -21,19 +21,16 @@ class Bot(commands.Bot):
     '''Custom Bot Class that overrides the commands.ext one'''
 
     def __init__(self, **options):
+        super().__init__(self.get_prefix_new, **options)
         print('Performing initialization...\n')
         self.cmd_help = cmd_help
         with open('config.json') as f:
             self.config = json.load(f)
             self.prefix = self.config.get('BOT_PREFIX')
             self.version = self.config.get('VERSION')
-            self.description = self.config.get('DESCRIPTION')
             self.integrations = self.config.get('INTEGRATIONS')
-            self.owners = self.config.get('OWNERS')
             self.maintenance = self.config.get('MAINTENANCE')
-        super.__init__(self.get_prefix,
-                       description=self.description,
-                       **options)
+            self.directrooms = self.config.get('DIRECTROOMS')
         self.remove_command("help")
         self.init_raven()
         # TODO rethinkdb structure - let ry handle
@@ -42,7 +39,8 @@ class Bot(commands.Bot):
         # self.init_rethinkdb()
         print('Initialization complete.\n\n')
 
-    async def get_prefix(self, bot, msg):
+    async def get_prefix_new(self, bot, msg):
+        # TODO add support for direct rooms, where commands don't need prefix
         return commands.when_mentioned_or(*self.prefix)(bot, msg)
 
     async def on_ready(self):
@@ -93,46 +91,46 @@ print("bot created.\n")
 
 
 @bot.listen("on_command_error")
-async def on_command_error(ctx, exception):
-    if isinstance(exception, commands_errors.MissingRequiredArgument):
+async def on_command_error(ctx, error):
+    if isinstance(error, commands_errors.MissingRequiredArgument):
         await cmd_help(ctx)
 
-    elif isinstance(exception, commands_errors.CommandInvokeError):
-        exception = exception.original
-        _traceback = traceback.format_tb(exception.__traceback__)
+    elif isinstance(error, commands_errors.CommandInvokeError):
+        error = error.original
+        _traceback = traceback.format_tb(error.__traceback__)
         _traceback = ''.join(_traceback)
-        embed_fallback = "ERROR: CONTACT @rcade ADMINS"
+        embed_fallback = "**ERROR: CONTACT `@rcade` ADMINS**"
 
-        error = discord.Embed(
+        error_embed = discord.Embed(
             title="An error has occurred.",
             color=0xFF0000,
             description="This is (probably) a bug. This has been automatically reported, but give ry00001#3487 or taciturasa#4365 a friendly Gamer Nudge."
         )
 
         sentry_string = "{} in command {}\nTraceback (most recent call last):\n{}{}: {}".format(
-            type(exception).__name__,
+            type(error).__name__,
             ctx.command.qualified_name,
             _traceback,
-            type(exception).__name__,
-            exception)
+            type(error).__name__,
+            error)
         print(sentry_string)
 
-        error.add_field(
+        error_embed.add_field(
             name="`{}` in command `{}`".format(
-                type(exception).__name__, ctx.command.qualified_name),
+                type(error).__name__, ctx.command.qualified_name),
             value="```py\nTraceback (most recent call last):\n{}{}: {}```".format(
-                _traceback, type(exception).__name__, exception))
+                _traceback, type(error).__name__, error))
 
         ctx.bot.sentry.captureMessage(sentry_string)
 
-        await ctx.send(embed_fallback, embed=error)
+        await ctx.send(embed_fallback, embed=error_embed)
 
-    elif isinstance(exception, commands_errors.CommandOnCooldown):
+    elif isinstance(error, commands_errors.CommandOnCooldown):
         await ctx.send(
             'This command is on cooldown. You can use this command in `{0:.2f}` seconds.'.format(
-                exception.retry_after))
+                error.retry_after))
     else:
-        ctx.send(exception)
+        ctx.send(error)
 
 
 @bot.command(aliases=['instructions'])
