@@ -315,7 +315,11 @@ class EmbedShell():
         shell = self.repl_sessions[session]
         embed = self.repl_embeds[shell]
 
-        await ctx.message.delete()
+        try:
+            await ctx.message.delete()
+        except discord.Forbidden:
+            pass
+
         try:
             await shell.delete()
         except discord.errors.NotFound:
@@ -349,7 +353,10 @@ class EmbedShell():
         self.repl_embeds[shell].color = discord.Color.default()
         self.repl_embeds[shell].clear_fields()
 
-        await ctx.message.delete()
+        try:
+            await ctx.message.delete()
+        except discord.Forbidden:
+            pass
         await shell.edit(embed=self.repl_embeds[shell])
 
 
