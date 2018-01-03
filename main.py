@@ -103,12 +103,6 @@ class Bot(commands.Bot):
                 return i
         return False
 
-    def find_command(self, cmdname: str):
-        for i in self.commands:
-            if i.name == cmdname:
-                return i
-        return False
-
 
 async def cmd_help(ctx):
     if ctx.invoked_subcommand:
@@ -155,7 +149,9 @@ async def on_command_error(ctx, error):
             name="`{}` in command `{}`".format(
                 type(error).__name__, ctx.command.qualified_name),
             value="```py\nTraceback (most recent call last):\n{}{}: {}```".format(
-                _traceback.replace(n, '<no>'), type(error).__name__, error))
+                _traceback.replace(n, '<no>'),
+                type(error).__name__,
+                error))
 
         ctx.bot.sentry.captureMessage(sentry_string)
 
@@ -163,7 +159,8 @@ async def on_command_error(ctx, error):
 
     elif isinstance(error, commands_errors.CommandOnCooldown):
         await ctx.send(
-            'This command is on cooldown. You can use this command in `{0:.2f}` seconds.'.format(
+            'This command is on cooldown. You can use this command in '
+            '`{0:.2f}` seconds.'.format(
                 error.retry_after))
     else:
         ctx.send(error)

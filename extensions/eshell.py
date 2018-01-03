@@ -6,17 +6,17 @@
 # The MIT License (MIT)
 #
 # Copyright (c) 2015 Rapptz
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
 # to deal in the Software without restriction, including without limitation
 # the rights to use, copy, modify, merge, publish, distribute, sublicense,
 # and/or sell copies of the Software, and to permit persons to whom the
 # Software is furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
 # OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,7 +32,10 @@ import aiohttp
 import inspect
 import traceback
 from contextlib import redirect_stdout
+from utils import permissions
 import io
+import datetime
+
 
 class EmbedShell():
     def __init__(self, bot):
@@ -41,7 +44,7 @@ class EmbedShell():
         self.repl_embeds = {}
         self.aioclient = aiohttp.ClientSession()
         self.twitter = '@atteybot'
-        
+
     def cleanup_code(self, content):
         '''Automatically removes code blocks from the code.'''
         # remove ```py\n```
@@ -73,6 +76,7 @@ class EmbedShell():
                              'longexec', 'core', 'overkill'],
                     pass_context=True,
                     invoke_without_command=True)
+    @permissions.owner()
     async def repl(self, ctx, *, name: str=None):
         '''Head on impact with an interactive python shell.'''
         # TODO Minimize local variables
@@ -82,14 +86,14 @@ class EmbedShell():
 
         embed = discord.Embed(
             description="_Enter code to execute or evaluate. "
-            "`exit()` or `quit` to exit._")
+            "`exit()` or `quit` to exit._",
+            timestamp=datetime.datetime.now())
 
-        embed.set_author(
-            name="Interactive Python Shell",
+        embed.set_footer(
+            text="Interactive Python Shell",
             icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb"
             "/c/c3/Python-logo-notext.svg/1024px-Python-logo-notext.svg.png")
 
-        embed.set_footer(text="Based on RDanny's repl command by Danny.")
         if name is not None:
             embed.title = name.strip(" ")
 
@@ -103,7 +107,6 @@ class EmbedShell():
             'channel': ctx.message.channel,
             'author': ctx.message.author,
             'discord': discord,
-            'twitter': self.twitter,
             '_': None
         }
 
@@ -121,7 +124,8 @@ class EmbedShell():
         self.repl_embeds[shell] = embed
 
         while True:
-            response = await self.bot.wait_for('message',
+            response = await self.bot.wait_for(
+                'message',
                 check=lambda m: m.content.startswith('`') and m.author == ctx.author and m.channel == ctx.channel)
 
             cleaned = self.cleanup_code(response.content)
@@ -134,33 +138,15 @@ class EmbedShell():
             except discord.NotFound:
                 new_shell = await ctx.send(embed=self.repl_embeds[shell])
                 self.repl_sessions[session] = new_shell
-            
+
                 embed = self.repl_embeds[shell]
                 del self.repl_embeds[shell]
                 self.repl_embeds[new_shell] = embed
-            
+
                 shell = self.repl_sessions[session]
 
-            shell_check = discord.utils.get(
-                self.bot.messages,
-                id=self.repl_sessions[session].id)
-
-            # Self Bot Method
-            # if shell_check is None:
-            #     new_shell = await ctx.send(embed=self.repl_embeds[shell])
-
-            #     self.repl_sessions[session] = new_shell
-
-            #     embed = self.repl_embeds[shell]
-            #     del self.repl_embeds[shell]
-            #     self.repl_embeds[new_shell] = embed
-
-            #     shell = self.repl_sessions[session]
-
-            # del shell_check
-
             try:
-                await self.bot.delete_message(response)
+                await response.delete()
             except discord.Forbidden:
                 pass
 
@@ -191,8 +177,7 @@ class EmbedShell():
                     value=return_msg,
                     inline=False)
 
-                await self.bot.edit_message(
-                    self.repl_sessions[session],
+                await self.repl_sessions[session].edit(
                     embed=self.repl_embeds[shell])
 
                 del self.repl_embeds[shell]
@@ -232,8 +217,7 @@ class EmbedShell():
                         value=return_msg,
                         inline=False)
 
-                    await self.bot.edit_message(
-                        self.repl_sessions[session],
+                    await self.repl_sessions[session].edit(
                         embed=self.repl_embeds[shell])
                     continue
 
@@ -269,6 +253,7 @@ class EmbedShell():
 
             history[cleaned] = fmt
 
+            print("got this far as well")
             if len(cleaned) > 800:
                 cleaned = "<Too big to be printed>"
 
@@ -283,8 +268,7 @@ class EmbedShell():
                                        haste_url),
                             inline=False)
 
-                        await self.bot.edit_message(
-                            self.repl_sessions[session],
+                        await self.repl_sessions[session].edit(
                             embed=self.repl_embeds[shell])
                     else:
                         self.repl_embeds[shell].add_field(
@@ -292,8 +276,7 @@ class EmbedShell():
                             value=fmt,
                             inline=False)
 
-                        await self.bot.edit_message(
-                            self.repl_sessions[session],
+                        await self.repl_sessions[session].edit(
                             embed=self.repl_embeds[shell])
                 else:
                     self.repl_embeds[shell].add_field(
@@ -301,8 +284,7 @@ class EmbedShell():
                         value="`Empty response, assumed successful.`",
                         inline=False)
 
-                    await self.bot.edit_message(
-                        self.repl_sessions[session],
+                    await self.repl_sessions[session].edit(
                         embed=self.repl_embeds[shell])
 
             except discord.Forbidden:
@@ -317,6 +299,7 @@ class EmbedShell():
     @repl.command(name='jump',
                   aliases=['hop', 'pull', 'recenter', 'whereditgo'],
                   pass_context=True)
+    @permissions.owner()
     async def _repljump(self, ctx):
         '''Brings the shell back down so you can see it again.'''
 
@@ -332,9 +315,9 @@ class EmbedShell():
         shell = self.repl_sessions[session]
         embed = self.repl_embeds[shell]
 
-        await self.bot.delete_message(ctx.message)
+        await ctx.message.delete()
         try:
-            await self.bot.delete_message(shell)
+            await shell.delete()
         except discord.errors.NotFound:
             pass
         new_shell = await ctx.send(embed=embed)
@@ -348,6 +331,7 @@ class EmbedShell():
                   aliases=['clean', 'purge', 'cleanup',
                            'ohfuckme', 'deletthis'],
                   pass_context=True)
+    @permissions.owner()
     async def _replclear(self, ctx):
         '''Clears the fields of the shell and resets the color.'''
 
@@ -365,10 +349,9 @@ class EmbedShell():
         self.repl_embeds[shell].color = discord.Color.default()
         self.repl_embeds[shell].clear_fields()
 
-        await self.bot.delete_message(ctx.message)
-        await self.bot.edit_message(
-            shell,
-            embed=self.repl_embeds[shell])
-        
+        await ctx.message.delete()
+        await shell.edit(embed=self.repl_embeds[shell])
+
+
 def setup(bot):
     bot.add_cog(EmbedShell(bot))
