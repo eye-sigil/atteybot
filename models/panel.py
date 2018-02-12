@@ -9,3 +9,10 @@ class Panel(discord.TextChannel):
 
     def __init__(self, name: str="room"):
         self.name = name
+
+    def add_setting():
+        """Adds setting to panel and channel."""
+        ...
+
+    def delete():
+        

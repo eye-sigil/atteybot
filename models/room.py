@@ -15,6 +15,7 @@ class Room(discord.CategoryChannel):
                game: str=None, is_nsfw: bool=False,
                is_private: bool=True, has_voice: bool=True,
                image: str=None, cover: str=None, *members: discord.User):
+        super().__init__()
 
         # Basic Setup
         self.owner = owner
