@@ -9,7 +9,9 @@ import asyncio
 import subprocess
 import rethinkdb as r
 
+
 class Admin:
+
     def __init__(self, bot):
         self.bot = bot
         self.conn = bot.conn
@@ -33,11 +35,10 @@ class Admin:
         codebyspace = code.split(" ")
         print(codebyspace)
         silent = False
-        if codebyspace[0] == "--silent" or codebyspace[0] == "-s": 
+        if codebyspace[0] == "--silent" or codebyspace[0] == "-s":
             silent = True
             codebyspace = codebyspace[1:]
             code = " ".join(codebyspace)
-
 
         self._eval['env'].update({
             'self': self.bot,
@@ -102,19 +103,21 @@ class Admin:
                     async with sesh.post("https://hastebin.com/documents/", data=output, headers={"Content-Type": "text/plain"}) as r:
                         r = await r.json()
                         embed = discord.Embed(
-                            description="[View output - click](https://hastebin.com/raw/{})".format(r["key"]),
+                            description="[View output - click](https://hastebin.com/raw/{})".format(r[
+                                "key"]),
                             color=randomness.random_colour()
                         )
                         await ctx.send(embed=embed)
 
     @commands.command(aliases=['sys', 's', 'run', 'sh'], description="Run system commands.")
     @permissions.owner()
-    async def system(self, ctx, *, command : str):
+    async def system(self, ctx, *, command: str):
         'Run system commands.'
         message = await ctx.send('<a:typing:393848431413559296> Processing...')
         result = []
         try:
-            process = subprocess.Popen(command.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            process = subprocess.Popen(command.split(
+                ' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             result = process.communicate()
         except FileNotFoundError:
             stderr = f'Command not found: {command}'
@@ -122,19 +125,23 @@ class Admin:
             title="Command output",
             color=randomness.random_colour()
         )
-        if len(result) >= 1 and result[0] in [None, b'']: stdout = 'No output.'
-        if len(result) >= 2 and result[0] in [None, b'']: stderr = 'No output.'
-        if len(result) >= 1 and result[0] not in [None, b'']: stdout = result[0].decode('utf-8')
-        if len(result) >= 2 and result[1] not in [None, b'']: stderr = result[1].decode('utf-8')
+        if len(result) >= 1 and result[0] in [None, b'']:
+            stdout = 'No output.'
+        if len(result) >= 2 and result[0] in [None, b'']:
+            stderr = 'No output.'
+        if len(result) >= 1 and result[0] not in [None, b'']:
+            stdout = result[0].decode('utf-8')
+        if len(result) >= 2 and result[1] not in [None, b'']:
+            stderr = result[1].decode('utf-8')
         string = ""
         if len(result) >= 1:
-            if (len(result[0]) >= 1024): 
+            if (len(result[0]) >= 1024):
                 stdout = result[0].decode('utf-8')
                 string = string + f'[[STDOUT]]\n{stdout}'
                 key = await self.haste_upload(string)
                 return await ctx.send(f"http://hastebin.com/{key}")
         if len(result) >= 2:
-            if (len(result[1]) >= 1024): 
+            if (len(result[1]) >= 1024):
                 stdout = result[0].decode('utf-8')
                 string = string + f'[[STDERR]]\n{stdout}'
                 key = await self.haste_upload(string)
@@ -145,9 +152,10 @@ class Admin:
 
     @commands.command(aliases=['game', 'status'])
     @permissions.owner()
-    async def setgame(self, ctx, *, status : str):
+    async def setgame(self, ctx, *, status: str):
         await ctx.bot.change_presence(game=discord.Game(name=status, type=0))
         await ctx.send(':ok_hand:')
+
 
 def setup(bot):
     bot.add_cog(Admin(bot))
