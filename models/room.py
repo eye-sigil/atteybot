@@ -8,7 +8,7 @@ from panel import Panel
 UserList = t.Optional[t.List[discord.User]]
 
 
-class Room:
+class Room(discord.CategoryChannel):
     """Represents a private room on @rcade"""
 
     def _init_(self, owner: discord.User, name: str=None,
