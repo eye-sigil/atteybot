@@ -11,10 +11,11 @@ UserList = t.Optional[t.List[discord.User]]
 class Room(discord.CategoryChannel):
     """Represents a private room on @rcade"""
 
-    def _init_(self, owner: discord.User, name: str=None,
+    def _init_(self, *members: discord.User, owner: discord.User,
+               category: discord.CategoryChannel, name: str=None,
                game: str=None, is_nsfw: bool=False,
                is_private: bool=True, has_voice: bool=True,
-               image: str=None, cover: str=None, *members: discord.User):
+               image: str=None, cover: str=None):
         super().__init__()
 
         # Basic Setup
@@ -39,6 +40,7 @@ class Room(discord.CategoryChannel):
         self.cover = cover  # Unimplemented Patreon Feature
 
         # Components
+        self.category = category
         self.panels = [Panel()]
         if game:
             self.panels.append(Panel(game))

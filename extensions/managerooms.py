@@ -11,11 +11,12 @@ class ManageRooms:
         self.bot = bot
         self.conn = bot.conn
 
-    @commands.command()
-    def create_room(self, owner: discord.User, name: str,
-                    game: str=None, nsfw: bool=False,
-                    **members: discord.User) -> models.Room:
+    @commands.command(pass_context=True)
+    def create_room(self, ctx, name: str,
+                    *members: discord.User) -> models.Room:
+
+        category = ctx.author.guild.create_category(name=name)
         room = models.Room(
-            members, owner=owner, name=name, game=game, nsfw=nsfw)
+            members, category=category, owner=ctx.author, name=name)
 
         return room
