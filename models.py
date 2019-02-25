@@ -1,7 +1,7 @@
 """Models for the attey framework."""
 
 import discord
-import rethinkdb
+# import rethinkdb
 import typing as t
 import models
 
@@ -71,6 +71,8 @@ class Room:
         self.panel = await guild.create_text_channel(
             'panel',
             category=self.category)
+
+        self.panel_contents = models.Panel(self.panel_channel)
 
         self.info = await guild.create_text_channel(
             'info',
@@ -197,13 +199,13 @@ class Room:
 class Panel:
     """Represents a panel channel in an @rcade room."""
 
-    def __init__(self, channel: discord.TextChannel, name: str = "room"):
+    def __init__(self, channel: discord.TextChannel):
         self.channel = channel
-        self.name = name
 
-    def add_setting(self):
+    def add_settings(self, structure: dict):
         """Adds setting to panel and channel."""
-        pass  # en why eye
+        # TODO This stuff lol
+        ...
 
     async def delete(self):
         """Deletes panel and relevant rethinkdb entries."""
