@@ -166,7 +166,7 @@ async def on_command_error(ctx, error):
 
 
 @bot.command(aliases=['instructions'])
-async def help(ctx, command: str=None):
+async def help(ctx, command: str = None):
     cmd = ctx.bot.find_command(command)
     helptext = await ctx.bot.formatter.format_help_for(
         ctx, cmd if cmd is not False else ctx.bot)
