@@ -10,7 +10,10 @@ from models import games, panels
 UserList = t.Optional[t.List[discord.User]]
 
 
-class Room:
+class Room(peewee.Model):
+    
+    class Meta:
+        database = peewee.db('atteybot.db')
 
     def __init__(self, owner: discord.User,
                  name: str = None, game: str = None,

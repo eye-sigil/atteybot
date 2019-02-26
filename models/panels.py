@@ -2,12 +2,15 @@ import discord
 # import rethinkdb
 import typing as t
 from models import panels
+import peewee
 
 
 
-
-class Panel:
+class Panel(peewee.Model):
     """Represents a panel channel in an @rcade room."""
+    
+    class Meta:
+        database = peewee.db('atteybot.db')
 
     def __init__(self, channel: discord.TextChannel):
         self.channel = channel
