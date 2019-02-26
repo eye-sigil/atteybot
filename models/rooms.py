@@ -3,6 +3,7 @@
 import discord
 # import rethinkdb
 import typing as t
+import peewee
 from models import games, panels
 
 
