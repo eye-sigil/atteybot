@@ -13,8 +13,8 @@ class ManageRooms(commands.Cog):
 
     @commands.command(pass_context=True, name='create')
     async def create_room(self, ctx,
-                          name: t.Optional[str],
-                          members: commands.Greedy[discord.Member]):
+                          members: commands.Greedy[discord.Member] = [],
+                          name: t.Optional[str] = None):
 
         message = await ctx.send(":typing: Creating room...")
 
@@ -23,7 +23,12 @@ class ManageRooms(commands.Cog):
 
         await room.construct(ctx.guild)
 
-        message.edit("Room created!")
+        await message.edit(content="Room created!")
+
+    @commands.command(pass_context=True, name='delete')
+    async def delete_room(self, ctx):
+        # TODO Call a wipe and then delete from memory
+        ...
 
 
 def setup(bot):

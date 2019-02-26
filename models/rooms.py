@@ -3,7 +3,7 @@
 import discord
 # import rethinkdb
 import typing as t
-from models import games, rooms, panels
+from models import games, panels
 
 
 UserList = t.Optional[t.List[discord.User]]
@@ -15,7 +15,7 @@ class Room:
                  name: str = None, game: str = None,
                  is_nsfw: bool = False, is_private: bool = True,
                  has_voice: bool = True, image: str = None,
-                 cover: str = None, *members: UserList) -> rooms.Room:
+                 cover: str = None, members: UserList = []):
         """Creates initial info and model for Room."""
 
         # Basic Setup
@@ -48,9 +48,7 @@ class Room:
         self.teams = {}  # Channel: UserList
         self.player_channels = {}  # Channel: User
 
-        return self
-
-    async def construct(self, guild) -> rooms.Room:
+    async def construct(self, guild):
         """Creates room inside of the discord server."""
         # TODO Database functionality, join channel broadcasting
 
@@ -59,11 +57,16 @@ class Room:
             self.name,
             overwrites={
                 guild.default_role: discord.PermissionOverwrite(
-                    read_messages=False)},
-            nsfw=self.is_nsfw)
+                    read_messages=False)})
+        self.category.edit(nsfw=self.is_nsfw)
 
         # Channels
         # FIXME Clean this up at some point by doing this via loop
+        self.info = await guild.create_text_channel(
+            'info',
+            category=self.category,
+            )
+
         self.main = await guild.create_text_channel(
             'main',
             category=self.category)
@@ -72,11 +75,7 @@ class Room:
             'panel',
             category=self.category)
 
-        self.panel_contents = panels.Panel(self.panel_channel)
-
-        self.info = await guild.create_text_channel(
-            'info',
-            category=self.category)
+        self.panel_contents = panels.Panel(self.panel)
 
         # Permissions
         for i in self.members:
