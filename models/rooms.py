@@ -1,21 +1,21 @@
-"""Models for the attey framework."""
+"""Represents a private room on @rcade"""
 
 import discord
 # import rethinkdb
 import typing as t
-import models
+from models import games, rooms, panels
+
 
 UserList = t.Optional[t.List[discord.User]]
 
 
 class Room:
-    """Represents a private room on @rcade"""
 
     def __init__(self, owner: discord.User,
                  name: str = None, game: str = None,
                  is_nsfw: bool = False, is_private: bool = True,
                  has_voice: bool = True, image: str = None,
-                 cover: str = None, *members: UserList) -> models.Room:
+                 cover: str = None, *members: UserList) -> rooms.Room:
         """Creates initial info and model for Room."""
 
         # Basic Setup
@@ -50,7 +50,7 @@ class Room:
 
         return self
 
-    async def construct(self, guild) -> models.Room:
+    async def construct(self, guild) -> rooms.Room:
         """Creates room inside of the discord server."""
         # TODO Database functionality, join channel broadcasting
 
@@ -72,7 +72,7 @@ class Room:
             'panel',
             category=self.category)
 
-        self.panel_contents = models.Panel(self.panel_channel)
+        self.panel_contents = panels.Panel(self.panel_channel)
 
         self.info = await guild.create_text_channel(
             'info',
@@ -146,7 +146,7 @@ class Room:
             await self.create_player_channels(to_player)
         # TODO Pass off to the game? Should the command or the caller do that?
 
-    def change_game(self, game: models.Game):
+    def change_game(self, game: games.Game):
         """Changes room's game."""
         # TODO Special stuff I decide games will want or need
         self.game = game
@@ -194,25 +194,3 @@ class Room:
             self.player_channels[channel] = i
 
         return self.player_channels
-
-
-class Panel:
-    """Represents a panel channel in an @rcade room."""
-
-    def __init__(self, channel: discord.TextChannel):
-        self.channel = channel
-
-    def add_settings(self, structure: dict):
-        """Adds setting to panel and channel."""
-        # TODO This stuff lol
-        ...
-
-    async def delete(self):
-        """Deletes panel and relevant rethinkdb entries."""
-        await self.channel.delete()
-
-
-class Game:
-    """Model for a game to run in an @rcade room."""
-
-    ...  # LOOOOOOONG way to go until this is implemented

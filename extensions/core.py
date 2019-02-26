@@ -7,7 +7,7 @@ import asyncio
 import sys
 
 
-class Core:
+class Core(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot

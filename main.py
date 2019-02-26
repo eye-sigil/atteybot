@@ -35,9 +35,8 @@ class Bot(commands.Bot):
             self.version = self.config.get('VERSION')
             self.integrations = self.config.get('INTEGRATIONS')
             self.maintenance = self.config.get('MAINTENANCE')
-            self.directrooms = self.config.get('DIRECTROOMS')
         self.remove_command("help")
-        self.init_raven()
+        # self.init_raven()
         self.rdb = self.config['RETHINKDB']['DB']
         self.rtables = []
         self.init_rethinkdb()
@@ -53,7 +52,7 @@ class Bot(commands.Bot):
         print(
             f'Logged in as {self.user.name}\nInvite link: {self.invite_url}')
         await self.change_presence(
-            game=discord.Game(
+            activity=discord.Game(
                 name=f'{self.prefix[0]}help | Version {self.version}',
                 type=0))
         self.load_extension('extensions.core')
@@ -124,7 +123,6 @@ async def on_command_error(ctx, error):
         await cmd_help(ctx)
 
     elif isinstance(error, commands_errors.CommandInvokeError):
-        n = ctx.bot.config['RYSFIRSTNAME']
         error = error.original
         _traceback = traceback.format_tb(error.__traceback__)
         _traceback = ''.join(_traceback)
@@ -136,23 +134,23 @@ async def on_command_error(ctx, error):
             description="This is (probably) a bug. This has been automatically reported, but give ry00001#3487 or taciturasa#4365 a friendly Gamer Nudge."
         )
 
-        sentry_string = "{} in command {}\nTraceback (most recent call last):\n{}{}: {}".format(
-            type(error).__name__,
-            ctx.command.qualified_name,
-            _traceback,
-            type(error).__name__,
-            error)
-        sentry_string = sentry_string.replace(n, '<no>')
+        # sentry_string = "{} in command {}\nTraceback (most recent call last):\n{}{}: {}".format(
+        #     type(error).__name__,
+        #     ctx.command.qualified_name,
+        #     _traceback,
+        #     type(error).__name__,
+        #     error)
+        # sentry_string = sentry_string.replace(n, '<no>')
 
         error_embed.add_field(
             name="`{}` in command `{}`".format(
                 type(error).__name__, ctx.command.qualified_name),
             value="```py\nTraceback (most recent call last):\n{}{}: {}```".format(
-                _traceback.replace(n, '<no>'),
+                _traceback,
                 type(error).__name__,
                 error))
 
-        ctx.bot.sentry.captureMessage(sentry_string)
+        # ctx.bot.sentry.captureMessage(sentry_string)
 
         await ctx.send(embed_fallback, embed=error_embed)
 
@@ -162,7 +160,7 @@ async def on_command_error(ctx, error):
             '`{0:.2f}` seconds.'.format(
                 error.retry_after))
     else:
-        ctx.send(error)
+        await ctx.send(error)
 
 
 @bot.command(aliases=['instructions'])
