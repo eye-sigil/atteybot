@@ -119,6 +119,8 @@ print("bot created.\n")
 
 @bot.listen("on_command_error")
 async def on_command_error(ctx, error):
+    """Main Error Handler."""
+
     if isinstance(error, commands_errors.MissingRequiredArgument):
         await cmd_help(ctx)
 
@@ -162,6 +164,33 @@ async def on_command_error(ctx, error):
     else:
         await ctx.send(error)
 
+
+@bot.listen("on_raw_reaction_add")
+async def on_raw_reaction_add(payload):
+    """Handles panel, create, and join channels."""
+
+    # Blocked User Check / Setup
+
+    guild = bot.get_guild(payload.guild_id)
+    member = guild.get_member(payload.user_id)
+
+    if member.id in bot.config.get('BLOCKED'):
+        return
+
+    channel = bot.get_channel(payload.channel_id)
+
+    # Panel
+
+    query = bot.conn.dothatfindything(channel.id) \
+                    .next()  # TODO lol
+    # Search the panel table for the id, then get the first result
+
+    if len(query) != 0:
+        do_the_panel_thing(payload, guild, member, channel)  # TODO
+        ...
+
+    # Create and Join basically the same, just with the server table
+    # instead of the panel table
 
 @bot.command(aliases=['instructions'])
 async def help(ctx, command: str = None):

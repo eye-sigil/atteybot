@@ -1,5 +1,6 @@
 from discord.ext import commands
 
+def 
 
 def is_owner_check(ctx):
     return str(ctx.message.author.id) in ctx.bot.config.get('OWNERS')

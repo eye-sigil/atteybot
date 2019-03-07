@@ -8,6 +8,8 @@
 * join/create channel functionality
 * Panel functionality
 * Game functionality
+* Create converters for various parts of the bot
+* Create automatic reset for a restart via database
 
 ## Content
 

@@ -1,7 +1,7 @@
 """Represents a private room on @rcade"""
 
 import discord
-# import rethinkdb
+import rethinkdb
 import typing as t
 from models import games, panels
 
@@ -47,6 +47,10 @@ class Room:
         self.other_channels = []
         self.teams = {}  # Channel: UserList
         self.player_channels = {}  # Channel: User
+
+    async def from_name(name: str):
+        """Finds a room from the database and returns it."""
+        ...
 
     async def construct(self, guild):
         """Creates room inside of the discord server."""
