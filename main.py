@@ -18,6 +18,7 @@ from discord.ext import commands
 from discord.ext.commands import errors as commands_errors
 from discord import utils as dutils
 from utils import permissions
+import peewee
 
 # INITIALIZE BOT #
 
@@ -37,9 +38,11 @@ class Bot(commands.Bot):
             self.maintenance = self.config.get('MAINTENANCE')
         self.remove_command("help")
         # self.init_raven()
-        self.rdb = self.config['RETHINKDB']['DB']
-        self.rtables = []
-        self.init_rethinkdb()
+        # self.rdb = self.config['RETHINKDB']['DB']
+        # self.rtables = []
+        # self.init_rethinkdb()
+        self.init_postgres()
+        self.db = peewee.PostgresqlDatabase('attey.db')
         print('Initialization complete.\n\n')
 
     async def get_prefix_new(self, bot, msg):
@@ -94,6 +97,20 @@ class Bot(commands.Bot):
             print('RethinkDB init error!\n{}: {}'.format(type(e).__name__, e))
             sys.exit(1)
         print('RethinkDB initialisation successful.')
+        
+    def init_postgres(self):
+        print('Now initialising PostgreSQL...')
+        dbc = self.config['POSTGRES']
+        try:
+            self.db = peewee.PostgresqlDatabase(None)
+            self.conn = self.db.init(
+                db['DB'],
+                db['HOST'],
+                db['USER'])
+        except Exception as e:
+            print('PostgreSQL init error!\n{}: {}'.format(type(e).__name__, e))
+            sys.exit(1)
+        print('PostgreSQL initialisation successful.')
 
     def find_command(self, cmdname: str):
         for i in self.commands:
